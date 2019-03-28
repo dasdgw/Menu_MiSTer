@@ -1,7 +1,8 @@
-//============================================================================
+//=================================================================================================
 //
-//  MiSTer hardware abstraction module (Menu core only)
-//  (c)2017-2019 Sorgelig
+//	 MenuCore for DE10-standard / DE1-soc kit
+//  hardware abstraction module (based on MiST MenuCore Sorgelig release 201900204)
+//  (c)2019 mazsola2k@modernhackers.com / http://www.modernhackers.com
 //
 //  This program is free software; you can redistribute it and/or modify it
 //  under the terms of the GNU General Public License as published by the Free
@@ -17,7 +18,7 @@
 //  with this program; if not, write to the Free Software Foundation, Inc.,
 //  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-//============================================================================
+//=================================================================================================
 
 module sys_top
 (
@@ -27,17 +28,43 @@ module sys_top
 	input         FPGA_CLK3_50,
 
 	//////////// VGA ///////////
-	output  [5:0] VGA_R,
-	output  [5:0] VGA_G,
-	output  [5:0] VGA_B,
-	inout         VGA_HS,  // VGA_HS is secondary SD card detect when VGA_EN = 1 (inactive)
+	//DE10-nano board implementation contained 6 / color
+	//output  [5:0] VGA_R,
+	//output  [5:0] VGA_G,
+	//output  [5:0] VGA_B,
+	//DE10-standard / DE1-soc kit board implementation has to contian 8 / color otherwise the brightness is low on the DAC
+	output  [7:0] VGA_R,
+	output  [7:0] VGA_G,
+	output  [7:0] VGA_B,
+	output        VGA_HS,  // VGA_HS is secondary SD card detect when VGA_EN = 1 (inactive)
 	output		  VGA_VS,
-	input         VGA_EN,  // active low
+	//DE10-nano implementation for VGA expansion daugher board
+	//input         VGA_EN,  // active low
+	//DE10-standard / DE1-soc kit implementation for on-board VGA DAC route - this will be overrided by code to set value to 0
+	inout         VGA_EN,  // active low
+	//DE10-standard / DE1-soc kit implementation for on-board VGA DAC route - additional pins
+	output 		  VGA_CLK,
+	output 		  VGA_BLANK_N,
+	output 		  VGA_SYNC_N,
 
+	//DE10-nano implementation for VGA expansion daugher board including analoge audio output jack
 	/////////// AUDIO //////////
 	output		  AUDIO_L,
 	output		  AUDIO_R,
 	output		  AUDIO_SPDIF,
+	
+	//DE10-standard / DE1-soc kit implementation for on-board Wolfson WM8731 Audio DAC
+	// Audio CODEC
+	inout wire    AUD_ADCLRCK,  // Audio CODEC ADC LR Clock
+	input wire    AUD_ADCDAT,   // Audio CODEC ADC Data
+	inout wire    AUD_DACLRCK,  // Audio CODEC DAC LR Clock
+	output wire   AUD_DACDAT,   // Audio CODEC DAC Data
+   inout wire    AUD_BCLK,     // Audio CODEC Bit-Stream Clock
+   output wire   AUD_XCK,      // Audio CODEC Chip Clock
+
+	// I2C
+   inout wire    I2C_SDAT,     // I2C Data
+   output wire   I2C_SCLK,     // I2C Clock
 
 	//////////// HDMI //////////
 	output        HDMI_I2C_SCL,
@@ -355,6 +382,7 @@ wire vde, hde;
 wire hdmi_vs,hdmi_vs2;
 wire hdmi_hs,hdmi_hs2;
 
+
 pattern_vg
 #(
 	.B(8),
@@ -441,6 +469,7 @@ pll_hdmi pll_hdmi
 	.outclk_0(HDMI_TX_CLK)
 );
 
+
 //1920x1080@60 PCLK=148.5MHz CEA
 reg  [11:0] WIDTH  = 1920;
 reg  [11:0] HFP    = 88;
@@ -471,6 +500,7 @@ pll_hdmi_cfg pll_hdmi_cfg
 	.reconfig_to_pll(reconfig_to_pll),
 	.reconfig_from_pll(reconfig_from_pll)
 );
+
 
 reg cfg_ready = 0;
 
@@ -559,6 +589,7 @@ vid_dim hdmi_dim
 
 wire [23:0] vga_q, vga_q2;
 wire hs2,vs2;
+
 osd vga_osd
 (
 	.clk_sys(clk_sys),
@@ -568,6 +599,7 @@ osd vga_osd
 	.io_din(io_din),
 
 	.clk_video(clk_vid),
+	
 	.din(de ? {r_out, g_out, b_out} : 24'd0),
 	.dout(vga_q),
 	.de_in(de)
@@ -606,11 +638,23 @@ wire hs1 = vga_scaler ? HDMI_TX_HS : hs2;
 
 assign VGA_VS = VGA_EN ? 1'bZ      : csync ?     1'b1     : ~vs1;
 assign VGA_HS = VGA_EN ? 1'bZ      : csync ? ~(vs1 ^ hs1) : ~hs1;
-assign VGA_R  = VGA_EN ? 6'bZZZZZZ : vga_o[23:18];
-assign VGA_G  = VGA_EN ? 6'bZZZZZZ : vga_o[15:10];
-assign VGA_B  = VGA_EN ? 6'bZZZZZZ : vga_o[7:2];
 
+//DE10-standard implementation for on-board VGA DAC route - assign values
+assign VGA_EN = 1'b0;						//enable VGA mode when VGA_EN is low
+assign VGA_CLK=HDMI_TX_CLK;				//has to define a clock to VGA DAC clock otherwise the picture is noisy
+assign VGA_SYNC_N = 1'b0;					//VGA DAC additional required pin
+assign VGA_BLANK_N = VGA_HS && VGA_VS;	//VGA DAC additional required pin
 
+//DE10-nano implementation for VGA Expansion board 6 channels / color
+//assign VGA_R  = VGA_EN ? 6'bZZZZZZ : vga_o[23:18];
+//assign VGA_G  = VGA_EN ? 6'bZZZZZZ : vga_o[15:10];
+//assign VGA_B  = VGA_EN ? 6'bZZZZZZ : vga_o[7:2];
+//DE10-standard / DE1-soc kit implementation for on-board VGA DAC route - use 8 channels / color
+assign VGA_R  = VGA_EN ? 6'bZZZZZZ : vga_o[23:16];
+assign VGA_G  = VGA_EN ? 6'bZZZZZZ : vga_o[15:8];
+assign VGA_B  = VGA_EN ? 6'bZZZZZZ : vga_o[7:0];
+
+//// de10-standard / de1-soc kit does not have HDMI audio anMister audio expansion board ///
 /////////////////////////  Audio output  ////////////////////////////////
 
 assign AUDIO_SPDIF = SW[0] ? HDMI_LRCLK : aspdif;
@@ -727,6 +771,29 @@ alsa alsa
 	.pcm_r(alsa_r)
 );
 
+//// de10-standard / de1-soc kit audio codec i2c ////
+
+wire exchan;
+wire mix;
+assign exchan    = 1'b0;
+assign mix       = 1'b0;
+audio_top audio_top (
+  .clk          (clk_audio),  // input clock
+  .rst_n        (!BTN_RESET),  // active low reset (from when reset button not pushed)
+  // config
+  .exchan       (exchan),  // switch audio left / right channel
+  .mix          (mix),  // normal / centered mix (play some left channel on the right channel and vise-versa)
+  // audio shifter
+  .rdata        (audio_r),  // right channel sample data
+  .ldata        (audio_l),  // left channel sample data
+  .aud_bclk     (AUD_BCLK),  // CODEC data clock
+  .aud_daclrck  (AUD_DACLRCK),  // CODEC data clock
+  .aud_dacdat   (AUD_DACDAT),  // CODEC data
+  .aud_xck      (AUD_XCK),  // CODEC data clock
+  // I2C audio config
+  .i2c_sclk     (I2C_SCLK),  // CODEC config clock
+  .i2c_sdat     (I2C_SDAT)   // CODEC config data
+);
 
 ////////////////  User I/O (USB 3.0 connector) /////////////////////////
 
@@ -746,6 +813,8 @@ wire  [1:0] audio_mix;
 wire  [7:0] r_out, g_out, b_out;
 wire        vs, hs, de;
 wire        clk_sys, clk_vid, ce_pix;
+
+
 wire  [2:0] patt;
 wire        dim;
 wire        reset_hdmi;
