@@ -59,15 +59,20 @@ module emu
 	output  [1:0] LED_POWER,
 	output  [1:0] LED_DISK,
 
+	// I/O board button press simulation (active high)
+	// b[1]: user button
+	// b[0]: osd button
+	output  [1:0] BUTTONS,
+
 	output [15:0] AUDIO_L,
 	output [15:0] AUDIO_R,
-	output        AUDIO_S, // 1 - signed audio samples, 0 - unsigned
+	output        AUDIO_S,   // 1 - signed audio samples, 0 - unsigned
 	output  [1:0] AUDIO_MIX, // 0 - no mix, 1 - 25%, 2 - 50%, 3 - 100% (mono)
 
 	//ADC
 	inout   [3:0] ADC_BUS,
 
-	// SD-SPI
+	//SD-SPI
 	output        SD_SCK,
 	output        SD_MOSI,
 	input         SD_MISO,
@@ -110,10 +115,10 @@ module emu
 	// Open-drain User port.
 	// 0 - D+/RX
 	// 1 - D-/TX
-	// 2..5 - USR1..USR4
+	// 2..6 - USR2..USR6
 	// Set USER_OUT to 1 to read from USER_IN.
-	input   [5:0] USER_IN,
-	output  [5:0] USER_OUT,
+	input   [6:0] USER_IN,
+	output  [6:0] USER_OUT,
 
 	input         OSD_STATUS
 );
@@ -138,6 +143,7 @@ assign AUDIO_MIX = 0;
 
 assign LED_DISK = 0;
 assign LED_POWER[1]= 1;
+assign BUTTONS = 0;
 
 reg  [26:0] act_cnt;
 always @(posedge clk_sys) act_cnt <= act_cnt + 1'd1; 
@@ -166,6 +172,7 @@ hps_io #(.STRLEN($size(CONF_STR)>>3)) hps_io
 
 	.buttons(buttons),
 	.status(status),
+	.status_menumask(cfg),
 	
 	.ps2_key(ps2_key)
 );
@@ -212,13 +219,100 @@ sdram sdr
 	.*,
 	.init(~locked),
 	.clk(clk_sys),
-	.addr(addr[24:0]),
+	.addr(sdram_addr),
 	.wtbt(3),
-	.dout(),
-	.din(0),
-	.rd(0),
-	.ready()
+	.dout(sdram_dout),
+	.din(sdram_din),
+	.rd(sdram_rd),
+	.we(sdram_we),
+	.ready(sdram_ready)
 );
+
+reg  [26:0] sdram_addr;
+wire        sdram_ready;
+wire [15:0] sdram_dout;
+reg  [15:0] sdram_din;
+reg         sdram_we;
+reg         sdram_rd;
+reg  [15:0] cfg = 0;
+
+always @(posedge clk_sys) begin
+	reg [4:0] state = 0;
+
+	sdram_rd <= 0;
+	sdram_we <= 0;
+
+	if(RESET) begin
+		state <= 0;
+		cfg <= 0;
+	end
+	else begin
+		case(state)
+			0: if(sdram_ready) begin
+					cfg <= 0;
+					state      <= state+1'd1;
+				end
+			1: begin
+					sdram_addr <= 'h4000000;
+					sdram_din  <= 3128;
+					sdram_we   <= 1;
+					state      <= state+1'd1;
+				end
+			2: state <= state+1'd1;
+			3: if(sdram_ready) begin
+					sdram_addr <= 'h2000000;
+					sdram_din  <= 2064;
+					sdram_we   <= 1;
+					state      <= state+1'd1;
+				end
+			4: state <= state+1'd1;
+			5: if(sdram_ready) begin
+					sdram_addr <= 'h0000000;
+					sdram_din  <= 1032;
+					sdram_we   <= 1;
+					state      <= state+1'd1;
+				end
+			6: state <= state+1'd1;
+			7: if(sdram_ready) begin
+					sdram_addr <= 'h1000000;
+					sdram_din  <= 12345;
+					sdram_we   <= 1;
+					state      <= state+1'd1;
+				end
+			8: state <= state+1'd1;
+			9: if(sdram_ready) begin
+					sdram_addr <= 'h4000000;
+					sdram_rd   <= 1;
+					state      <= state+1'd1;
+				end
+			10: state <= state+1'd1;
+			11: if(sdram_ready) begin
+					cfg[2]     <= (sdram_dout == 3128);
+					sdram_addr <= 'h2000000;
+					sdram_rd   <= 1;
+					state      <= state+1'd1;
+				end
+			12: state <= state+1'd1;
+			13: if(sdram_ready) begin
+					cfg[1]     <= (sdram_dout == 2064);
+					sdram_addr <= 'h0000000;
+					sdram_rd   <= 1;
+					state      <= state+1'd1;
+				end
+			14: state <= state+1'd1;
+			15: if(sdram_ready) begin
+					cfg[0]     <= (sdram_dout == 1032);
+					cfg[15]    <= 1;
+					state      <= state+1'd1;
+				end
+			16: begin
+					sdram_addr <= addr[24:0];
+					sdram_din  <= 0;
+					sdram_we   <= we;
+				end
+		endcase
+	end
+end
 
 ddram ddr
 (
@@ -236,7 +330,7 @@ reg [28:0] addr = 0;
 always @(posedge clk_sys) begin
 	reg [4:0] cnt = 9;
 
-	if(~RESET) begin
+	if(~RESET & cfg[15]) begin
 		cnt <= cnt + 1'b1;
 		we <= &cnt;
 		if(cnt == 8) addr <= addr + 1'd1;
@@ -291,23 +385,26 @@ always @(posedge CLK_VIDEO) begin
 	if (hc == 529) HBlank <= 1;
 		else if (hc == 0) HBlank <= 0;
 
-	if (hc == 544) HSync <= 1;
-		else if (hc == 590) HSync <= 0;
+	if (hc == 544) begin
+		HSync <= 1;
 
-	if(PAL) begin
-		if(vc == (forced_scandoubler ? 609 : 304)) VSync <= 1;
-			else if (vc == (forced_scandoubler ? 617 : 308)) VSync <= 0;
+		if(PAL) begin
+			if(vc == (forced_scandoubler ? 609 : 304)) VSync <= 1;
+				else if (vc == (forced_scandoubler ? 617 : 308)) VSync <= 0;
 
-		if(vc == (forced_scandoubler ? 601 : 300)) VBlank <= 1;
-			else if (vc == 0) VBlank <= 0;
+			if(vc == (forced_scandoubler ? 601 : 300)) VBlank <= 1;
+				else if (vc == 0) VBlank <= 0;
+		end
+		else begin
+			if(vc == (forced_scandoubler ? 490 : 245)) VSync <= 1;
+				else if (vc == (forced_scandoubler ? 496 : 248)) VSync <= 0;
+
+			if(vc == (forced_scandoubler ? 480 : 240)) VBlank <= 1;
+				else if (vc == 0) VBlank <= 0;
+		end
 	end
-	else begin
-		if(vc == (forced_scandoubler ? 490 : 245)) VSync <= 1;
-			else if (vc == (forced_scandoubler ? 496 : 248)) VSync <= 0;
-
-		if(vc == (forced_scandoubler ? 480 : 240)) VBlank <= 1;
-			else if (vc == 0) VBlank <= 0;
-	end
+	
+	if (hc == 590) HSync <= 0;
 end
 
 reg  [7:0] cos_out;
