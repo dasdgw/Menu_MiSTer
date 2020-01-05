@@ -84,10 +84,7 @@ module sys_top
 	output  [7:0] VGA_B,
 	inout         VGA_HS,  // VGA_HS is secondary SD card detect when VGA_EN = 1 (inactive)
 	output		  VGA_VS,
-	//DE10-nano implementation for VGA expansion daugher board
-	//input         VGA_EN,  // active low
-	//DE10-standard / DE1-soc kit / / Arrow SoCKit implementation for on-board VGA DAC route - this will be overrided by code to set value to 0
-	inout         VGA_EN,  // active low
+	input         VGA_EN,  // active low
 	//DE10-standard / DE1-soc kit / / Arrow SoCKit implementation for on-board VGA DAC route - additional pins
 	output 		  VGA_CLK,
 	output 		  VGA_BLANK_N,
@@ -146,8 +143,7 @@ module sys_top
 	input   [1:0] KEY,
 
 	////////// MB SWITCH ////////
-	//DE10-standard / DE1-soc kit / Arrow SoCKit board implementation
-	inout   [3:0] SW,
+	input   [3:0] SW,
 
 	////////// MB LED ///////////
 	output  [7:0] LED,
@@ -156,9 +152,6 @@ module sys_top
 	inout   [6:0] USER_IO
 );
 
-// DE10-Stanard / DE1-SoC / Arrow SoCKit VGA mode
-assign SW[3] = 1'b0;		//necessary for VGA mode
-assign VGA_EN = 1'b0;		//enable VGA mode when VGA_EN is low
 
 //////////////////////  Secondary SD  ///////////////////////////////////
 
@@ -1038,11 +1031,11 @@ csync csync_vga(clk_vid, vga_hs_osd, vga_vs_osd, vga_cs_osd);
 	//assign VGA_G  = (VGA_EN | SW[3]) ? 6'bZZZZZZ : vga_o[15:10];
 	//assign VGA_B  = (VGA_EN | SW[3]) ? 6'bZZZZZZ : vga_o[7:2];
 	
-   assign VGA_VS = (VGA_EN | SW[3]) ? 1'bZ      : csync_en ? 1'b1 : ~vs1;
-	assign VGA_HS = (VGA_EN | SW[3]) ? 1'bZ      : csync_en ? ~cs1 : ~hs1;
-	assign VGA_R  = (VGA_EN | SW[3]) ? 6'bZZZZZZ : vga_o[23:16];
-	assign VGA_G  = (VGA_EN | SW[3]) ? 6'bZZZZZZ : vga_o[15:8];
-	assign VGA_B  = (VGA_EN | SW[3]) ? 6'bZZZZZZ : vga_o[7:0];
+   assign VGA_VS = ~vs1;
+	assign VGA_HS = ~hs1;
+	assign VGA_R  = vga_o[23:16];
+	assign VGA_G  = vga_o[15:8];
+	assign VGA_B  = vga_o[7:0];
 	
 	assign VGA_BLANK_N = VGA_HS && VGA_VS; //VGA DAC additional required pin
 	assign VGA_SYNC_N = 0; 						//VGA DAC additional required pin

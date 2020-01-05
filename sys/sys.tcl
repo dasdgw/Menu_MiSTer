@@ -119,12 +119,41 @@ set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to SD_SPI*
 #============================================================
 # CLOCK
 #============================================================
-set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to FPGA_CLK1_50
-set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to FPGA_CLK2_50
-set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to FPGA_CLK3_50
+#set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to FPGA_CLK1_50
+#set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to FPGA_CLK2_50
+#set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to FPGA_CLK3_50
+#Eredeti
 set_location_assignment PIN_AF14 -to FPGA_CLK1_50
 set_location_assignment PIN_AA16 -to FPGA_CLK2_50
 set_location_assignment PIN_Y26 -to FPGA_CLK3_50
+#Minimig mar jo
+#set_location_assignment PIN_AF14 -to FPGA_CLK1_50
+#set_location_assignment PIN_Y26 -to FPGA_CLK2_50
+#set_location_assignment PIN_AA16 -to FPGA_CLK3_50
+
+#set_location_assignment PIN_AF14 -to FPGA_CLK1_50
+#set_location_assignment PIN_K14 -to FPGA_CLK2_50
+#set_location_assignment PIN_AA16 -to FPGA_CLK3_50
+
+#set_location_assignment PIN_AA16 -to FPGA_CLK1_50
+#set_location_assignment PIN_Y26 -to FPGA_CLK2_50
+#set_location_assignment PIN_K14 -to FPGA_CLK3_50
+
+#meg jo lehet cserelt
+#set_location_assignment PIN_AA16 -to FPGA_CLK1_50
+#set_location_assignment PIN_Y26 -to FPGA_CLK2_50
+#set_location_assignment PIN_AF14 -to FPGA_CLK3_50
+
+#teljesen lecserelt
+
+#set_location_assignment PIN_AA16 -to FPGA_CLK1_50
+#set_location_assignment PIN_AF14 -to FPGA_CLK2_50
+#set_location_assignment PIN_K14 -to FPGA_CLK3_50
+
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to FPGA_CLK1_50
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to FPGA_CLK2_50
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to FPGA_CLK3_50
+
 
 #============================================================
 # HDMI
@@ -218,7 +247,7 @@ set_location_assignment PIN_W25 -to SW[0]
 
 set_instance_assignment -name HPS_LOCATION HPSINTERFACEPERIPHERALSPIMASTER_X52_Y72_N111 -entity sys_top -to spi
 set_instance_assignment -name HPS_LOCATION HPSINTERFACEPERIPHERALUART_X52_Y67_N111 -entity sys_top -to uart
-set_location_assignment FRACTIONALPLL_X89_Y1_N0 -to emu:emu|pll:pll|pll_0002:pll_inst|altera_pll:altera_pll_i|altera_cyclonev_pll:cyclonev_pll|altera_cyclonev_pll_base:fpll_0|fpll
+#set_location_assignment FRACTIONALPLL_X89_Y1_N0 -to emu:emu|pll:pll|pll_0002:pll_inst|altera_pll:altera_pll_i|altera_cyclonev_pll:cyclonev_pll|altera_cyclonev_pll_base:fpll_0|fpll
 
 set_global_assignment -name PRE_FLOW_SCRIPT_FILE "quartus_sh:sys/build_id.tcl"
 
