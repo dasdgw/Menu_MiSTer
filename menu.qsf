@@ -18,7 +18,6 @@ set_global_assignment -name NUM_PARALLEL_PROCESSORS ALL
 set_global_assignment -name SMART_RECOMPILE ON
 
 source sys/sys.tcl
-set_location_assignment FRACTIONALPLL_X89_Y1_N0 -to "emu:emu|pll:pll|pll_0002:pll_inst|altera_pll:altera_pll_i|altera_cyclonev_pll:cyclonev_pll|altera_cyclonev_pll_base:fpll_0|fpll"
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to ADC_CONVST
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to ADC_SCK
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to ADC_SDI
@@ -92,42 +91,42 @@ set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to BTN_*
 source files.qip
 set_global_assignment -name FAMILY "Cyclone V"
 set_global_assignment -name DEVICE 5CSXFC6D6F31C8ES
-set_location_assignment PIN_D7 -to SDRAM_A[0]
-set_location_assignment PIN_A8 -to SDRAM_A[1]
-set_location_assignment PIN_E8 -to SDRAM_A[2]
-set_location_assignment PIN_A9 -to SDRAM_A[3]
-set_location_assignment PIN_J12 -to SDRAM_A[4]
-set_location_assignment PIN_D5 -to SDRAM_A[5]
-set_location_assignment PIN_G10 -to SDRAM_A[6]
-set_location_assignment PIN_C4 -to SDRAM_A[7]
-set_location_assignment PIN_F10 -to SDRAM_A[8]
-set_location_assignment PIN_E7 -to SDRAM_A[9]
-set_location_assignment PIN_G12 -to SDRAM_A[10]
-set_location_assignment PIN_J10 -to SDRAM_A[11]
-set_location_assignment PIN_E6 -to SDRAM_A[12]
-set_location_assignment PIN_G11 -to SDRAM_BA[0]
-set_location_assignment PIN_G7 -to SDRAM_BA[1]
-set_location_assignment PIN_F8 -to SDRAM_DQ[0]
-set_location_assignment PIN_AB27 -to SDRAM_DQ[1]
-set_location_assignment PIN_F9 -to SDRAM_DQ[2]
-set_location_assignment PIN_AA26 -to SDRAM_DQ[3]
-set_location_assignment PIN_G8 -to SDRAM_DQ[4]
-set_location_assignment PIN_B3 -to SDRAM_DQ[5]
-set_location_assignment PIN_H8 -to SDRAM_DQ[6]
-set_location_assignment PIN_C3 -to SDRAM_DQ[7]
-set_location_assignment PIN_K7 -to SDRAM_DQ[8]
-set_location_assignment PIN_E3 -to SDRAM_DQ[9]
-set_location_assignment PIN_K8 -to SDRAM_DQ[10]
-set_location_assignment PIN_E2 -to SDRAM_DQ[11]
-set_location_assignment PIN_J7 -to SDRAM_DQ[12]
-set_location_assignment PIN_E4 -to SDRAM_DQ[13]
-set_location_assignment PIN_D4 -to SDRAM_DQ[14]
-set_location_assignment PIN_H7 -to SDRAM_DQ[15]
-set_location_assignment PIN_J9 -to SDRAM_CLK
-set_location_assignment PIN_C5 -to SDRAM_nWE
-set_location_assignment PIN_D6 -to SDRAM_nCAS
-set_location_assignment PIN_F6 -to SDRAM_nCS
-set_location_assignment PIN_K12 -to SDRAM_nRAS
+set_location_assignment PIN_B1 -to SDRAM_A[0]
+set_location_assignment PIN_C2 -to SDRAM_A[1]
+set_location_assignment PIN_B2 -to SDRAM_A[2]
+set_location_assignment PIN_D2 -to SDRAM_A[3]
+set_location_assignment PIN_D9 -to SDRAM_A[4]
+set_location_assignment PIN_C7 -to SDRAM_A[5]
+set_location_assignment PIN_E12 -to SDRAM_A[6]
+set_location_assignment PIN_B7 -to SDRAM_A[7]
+set_location_assignment PIN_D12 -to SDRAM_A[8]
+set_location_assignment PIN_A11 -to SDRAM_A[9]
+set_location_assignment PIN_B6 -to SDRAM_A[10]
+set_location_assignment PIN_D11 -to SDRAM_A[11]
+set_location_assignment PIN_A10 -to SDRAM_A[12]
+set_location_assignment PIN_B5 -to SDRAM_BA[0]
+set_location_assignment PIN_A4 -to SDRAM_BA[1]
+set_location_assignment PIN_F14 -to SDRAM_DQ[0]
+set_location_assignment PIN_G15 -to SDRAM_DQ[1]
+set_location_assignment PIN_F15 -to SDRAM_DQ[2]
+set_location_assignment PIN_H15 -to SDRAM_DQ[3]
+set_location_assignment PIN_G13 -to SDRAM_DQ[4]
+set_location_assignment PIN_A13 -to SDRAM_DQ[5]
+set_location_assignment PIN_H14 -to SDRAM_DQ[6]
+set_location_assignment PIN_B13 -to SDRAM_DQ[7]
+set_location_assignment PIN_C13 -to SDRAM_DQ[8]
+set_location_assignment PIN_C8 -to SDRAM_DQ[9]
+set_location_assignment PIN_B12 -to SDRAM_DQ[10]
+set_location_assignment PIN_B8 -to SDRAM_DQ[11]
+set_location_assignment PIN_F13 -to SDRAM_DQ[12]
+set_location_assignment PIN_C12 -to SDRAM_DQ[13]
+set_location_assignment PIN_B11 -to SDRAM_DQ[14]
+set_location_assignment PIN_E13 -to SDRAM_DQ[15]
+set_location_assignment PIN_D10 -to SDRAM_CLK
+set_location_assignment PIN_A5 -to SDRAM_nWE
+set_location_assignment PIN_A6 -to SDRAM_nCAS
+set_location_assignment PIN_A3 -to SDRAM_nCS
+set_location_assignment PIN_E9 -to SDRAM_nRAS
 set_location_assignment PIN_AF14 -to FPGA_CLK1_50
 set_location_assignment PIN_AA16 -to FPGA_CLK2_50
 set_location_assignment PIN_Y26 -to FPGA_CLK3_50
@@ -190,7 +189,7 @@ set_global_assignment -name SYSTEMVERILOG_FILE cos.sv
 set_global_assignment -name SYSTEMVERILOG_FILE menu.sv
 set_global_assignment -name CDF_FILE jtag.cdf
 set_global_assignment -name QIP_FILE sys/sys.qip
-set_global_assignment -name FITTER_EFFORT "STANDARD FIT"
+set_global_assignment -name FITTER_EFFORT "AUTO FIT"
 set_global_assignment -name ENABLE_OCT_DONE OFF
 set_global_assignment -name STRATIXV_CONFIGURATION_SCHEME "PASSIVE SERIAL"
 set_global_assignment -name USE_CONFIGURATION_DEVICE ON
@@ -201,6 +200,9 @@ set_global_assignment -name OUTPUT_IO_TIMING_NEAR_END_VMEAS "HALF VCCIO" -fall
 set_global_assignment -name OUTPUT_IO_TIMING_FAR_END_VMEAS "HALF SIGNAL SWING" -rise
 set_global_assignment -name OUTPUT_IO_TIMING_FAR_END_VMEAS "HALF SIGNAL SWING" -fall
 set_global_assignment -name ACTIVE_SERIAL_CLOCK FREQ_100MHZ
+set_location_assignment PIN_AB27 -to SDRAM_DQML
+set_location_assignment PIN_AA26 -to SDRAM_DQMH
+set_location_assignment PIN_B3 -to SDRAM_CKE
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
 set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
 set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
