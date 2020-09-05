@@ -4,7 +4,7 @@
 #
 # WARNING WARNING WARNING:
 # Do not add files to project in Quartus IDE! It will mess this file!
-# Add the files manually to files.qip file.
+# Add the files manually to sys/sys.qip file.
 #
 # --------------------------------------------------------------------------
 
@@ -88,7 +88,6 @@ set_instance_assignment -name CURRENT_STRENGTH_NEW 8MA -to AUDIO_*
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to LED_*
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to BTN_*
 set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to BTN_*
-source files.qip
 set_global_assignment -name FAMILY "Cyclone V"
 set_global_assignment -name DEVICE 5CSXFC6D6F31C8ES
 set_location_assignment PIN_B1 -to SDRAM_A[0]
