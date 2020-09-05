@@ -178,15 +178,6 @@ set_location_assignment PIN_AD10 -to LED_POWER
 set_location_assignment PIN_AD9 -to BTN_USER
 set_location_assignment PIN_AE9 -to BTN_OSD
 set_location_assignment PIN_AE12 -to BTN_RESET
-set_global_assignment -name VERILOG_FILE sys/I2C_Controller.v
-set_global_assignment -name VERILOG_FILE sys/I2C_AV_Config.v
-set_global_assignment -name VERILOG_FILE sys/audio_top.v
-set_global_assignment -name VERILOG_FILE sys/audio_shifter.v
-set_global_assignment -name SYSTEMVERILOG_FILE sdram.sv
-set_global_assignment -name SYSTEMVERILOG_FILE ddram.sv
-set_global_assignment -name VERILOG_FILE lfsr.v
-set_global_assignment -name SYSTEMVERILOG_FILE cos.sv
-set_global_assignment -name SYSTEMVERILOG_FILE menu.sv
 set_global_assignment -name CDF_FILE jtag.cdf
 set_global_assignment -name QIP_FILE sys/sys.qip
 set_global_assignment -name FITTER_EFFORT "AUTO FIT"
